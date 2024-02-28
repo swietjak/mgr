@@ -1,3 +1,4 @@
 data/
 env/
 weakly-supervised-petct/
+checkpoints/
