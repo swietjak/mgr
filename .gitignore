@@ -2,3 +2,4 @@ data/
 env/
 weakly-supervised-petct/
 checkpoints/
+__pycache__/
