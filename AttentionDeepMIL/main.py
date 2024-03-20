@@ -33,7 +33,8 @@ parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
-parser.add_argument('--model', type=str, default='attention', help='Choose b/w attention and gated_attention')
+parser.add_argument('--model', type=str, default='attention',
+                    help='Choose b/w attention and gated_attention')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -67,14 +68,15 @@ test_loader = data_utils.DataLoader(MnistBags(target_number=args.target_number,
                                     **loader_kwargs)
 
 print('Init Model')
-if args.model=='attention':
+if args.model == 'attention':
     model = Attention()
-elif args.model=='gated_attention':
+elif args.model == 'gated_attention':
     model = GatedAttention()
 if args.cuda:
     model.cuda()
 
-optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(0.9, 0.999), weight_decay=args.reg)
+optimizer = optim.Adam(model.parameters(), lr=args.lr,
+                       betas=(0.9, 0.999), weight_decay=args.reg)
 
 
 def train(epoch):
@@ -86,7 +88,8 @@ def train(epoch):
         if args.cuda:
             data, bag_label = data.cuda(), bag_label.cuda()
         data, bag_label = Variable(data), Variable(bag_label)
-
+        # print(data.shape)
+        # print(data.shape, bag_label)
         # reset gradients
         optimizer.zero_grad()
         # calculate loss and metrics
@@ -103,14 +106,15 @@ def train(epoch):
     train_loss /= len(train_loader)
     train_error /= len(train_loader)
 
-    print('Epoch: {}, Loss: {:.4f}, Train error: {:.4f}'.format(epoch, train_loss.cpu().numpy()[0], train_error))
+    print('Epoch: {}, Loss: {:.4f}, Train error: {:.4f}'.format(
+        epoch, train_loss.cpu().numpy()[0], train_error))
 
 
 def test():
     model.eval()
     test_loss = 0.
     test_error = 0.
-    
+
     with torch.no_grad():
         for batch_idx, (data, label) in enumerate(test_loader):
             bag_label = label[0]
@@ -118,23 +122,27 @@ def test():
             if args.cuda:
                 data, bag_label = data.cuda(), bag_label.cuda()
             data, bag_label = Variable(data), Variable(bag_label)
-            loss, attention_weights = model.calculate_objective(data, bag_label)
+            loss, attention_weights = model.calculate_objective(
+                data, bag_label)
             test_loss += loss.data[0]
-            error, predicted_label = model.calculate_classification_error(data, bag_label)
+            error, predicted_label = model.calculate_classification_error(
+                data, bag_label)
             test_error += error
 
             if batch_idx < 5:  # plot bag labels and instance labels for first 5 bags
-                bag_level = (bag_label.cpu().data.numpy()[0], int(predicted_label.cpu().data.numpy()[0][0]))
+                bag_level = (bag_label.cpu().data.numpy()[0], int(
+                    predicted_label.cpu().data.numpy()[0][0]))
                 instance_level = list(zip(instance_labels.numpy()[0].tolist(),
-                                    np.round(attention_weights.cpu().data.numpy()[0], decimals=3).tolist()))
+                                          np.round(attention_weights.cpu().data.numpy()[0], decimals=3).tolist()))
 
                 print('\nTrue Bag Label, Predicted Bag Label: {}\n'
-                    'True Instance Labels, Attention Weights: {}'.format(bag_level, instance_level))
+                      'True Instance Labels, Attention Weights: {}'.format(bag_level, instance_level))
 
     test_error /= len(test_loader)
     test_loss /= len(test_loader)
 
-    print('\nTest Set, Loss: {:.4f}, Test error: {:.4f}'.format(test_loss.cpu().numpy()[0], test_error))
+    print('\nTest Set, Loss: {:.4f}, Test error: {:.4f}'.format(
+        test_loss.cpu().numpy()[0], test_error))
 
 
 if __name__ == "__main__":
