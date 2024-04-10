@@ -3,3 +3,4 @@ env/
 weakly-supervised-petct/
 checkpoints/
 __pycache__/
+CLAM/
