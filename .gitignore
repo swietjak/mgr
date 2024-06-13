@@ -6,3 +6,5 @@ __pycache__/
 CLAM/
 bert_output/
 tcga-dataset/
+plots/
+models/best_text_model.pt
